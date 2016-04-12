@@ -38,6 +38,8 @@ Then /I should see only 'PG' or 'R' rated movies/ do
  page.body.should match(/<td>PG<\/td>/)
 end
 
+
+
 When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
@@ -58,5 +60,27 @@ end
 Then /I should see all the movies/ do
   # Make sure that all the movies in the app are visible in the table
   Movie.find(:all).length.should page.body.scan(/<tr>/).length
-  fail "Unimplemented"
+  #fail "Unimplemented"
+   movies = Movie.all
+  
+  if movies.size == 10
+    movies.each do |movie|
+      assert page.body =~ /#{movie.title}/m, "#{movie.title} did not appear"
+    end
+  else
+    false
+  end
 end
+
+Then /I should not see any movies/ do
+  movies = Movie.all
+  movies.each do |movie|
+    assert true unless page.body =~ /#{movie.title}/m
+  end
+end
+
+Then /^the director of "(.*?)" should be "(.*?)"$/ do |movie_title, new_director|
+  movie = Movie.find_by_title movie_title
+  movie.director.should == new_director
+end
+
